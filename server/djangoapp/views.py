@@ -34,7 +34,7 @@ def login_request(request):
     context = {}
     if request.method == "POST":
         username = request.POST['username']
-        password = request.POST['password']
+        password = request.POST['psw']
         user = authenticate(username=username, password=password)
         if user is not None:
             login(request, user)
@@ -110,6 +110,7 @@ def get_dealer_details(request, dealer_id):
 def add_review(request, dealer_id):
     print(f"dealer_id en view{dealer_id}")
     context = {}
+    cadena_fecha = ''
     if request.method == "GET":
         url = "https://223ee29a.us-south.apigw.appdomain.cloud/captson/dealerships"
         dealerships = get_dealers_from_cf(url,"")
@@ -129,7 +130,12 @@ def add_review(request, dealer_id):
             params["dealership"] = dealer_id
             params["review"] = request.POST["review"]
             params["purchase"] = True
-            params["purchase_date"] = request.POST["purchase_date"]
+            fecha = request.POST["purchase_date"].split("-")
+            fecha_str = str(fecha)
+            cadena_fecha = cadena_fecha + fecha[1] + "/"
+            cadena_fecha = cadena_fecha + fecha[2] + "/"
+            cadena_fecha = cadena_fecha + fecha[0]
+            params["purchase_date"] = cadena_fecha
             car = request.POST["car"].split("-")
             params["car_make"] = car[1]
             params["car_model"] = car[0]
@@ -139,7 +145,7 @@ def add_review(request, dealer_id):
             params["dealership"] = dealer_id
             params["review"] = request.POST["review"]
             params["purchase"] = False
-        review = {"review":params}
+        review = {"data":params}
         print(request.POST["purchase"])
         response = post_request(url,review,dealer_id=dealer_id)
         if response:
